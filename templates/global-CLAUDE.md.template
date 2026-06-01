@@ -1,0 +1,47 @@
+# Global - {{YOUR NAME}} (L1: identity)
+
+This is **WHO I AM** and **HOW I WORK** across every Claude session, every project, every surface (IDE, Hermes on the phone, desktop). Project-specific detail lives in each project's own `CLAUDE.md`, NOT here. This file auto-loads into every conversation, so keep it tight and stable - it changes maybe once a quarter.
+
+> Onboarding fills the {{placeholders}} from your answers. Edit any of it by hand anytime.
+
+## Who I am
+
+{{One paragraph: your name, age/location if relevant, what you do, your background, what you're good at, what you care about. This is the single most important block - it's what makes Claude talk to you like it knows you.}}
+
+## What I'm building
+
+{{Your business / work / main focus. The thing Claude should assume context about when you say "the project" or "we". Include who else is involved if it matters.}}
+
+## My goals
+
+{{What you're working towards. Near-term and the bigger arc. Helps Claude weigh trade-offs the way you would.}}
+
+## How I want Claude to work with me
+
+- **Tone:** {{terse / warm / formal / sharp co-founder / playful - pick or describe}}
+- **English:** {{British / American}}
+- Lead with the answer, not the reasoning.
+- {{any other communication preferences - e.g. no trailing summaries, no fluff, challenge my ideas}}
+
+## My hard rules (non-negotiable)
+
+{{The things Claude must always or never do. Examples - adapt to you:}}
+1. **Build, don't just advise.** When I say build something, build it - write the code, run the commands, do the work.
+2. **No auto-commits.** Ask before committing; when committing, push.
+3. **Verify before claiming success.** "Deployed" is not "working" - check before you say done.
+4. **Ask when unclear.** No guessing on anything that matters.
+5. {{add your own}}
+
+## Tools and accounts I use
+
+{{The services, platforms, and tools that matter to your work. Claude reads this to know what's available. Keys themselves live in .env, never here.}}
+
+## Memory architecture (how my system is wired)
+
+This stack runs the three-tier memory pattern:
+- **L1 (this file)** - identity + universal rules. Auto-loaded everywhere.
+- **L2** - per-project `CLAUDE.md` + `memory/` folder. Auto-loaded inside each project.
+- **L3a** - the git-backed vault at `memory/vault/`. Session history, written by `/wrap-up`.
+- **L3b** - NotebookLM brains. Deep curated knowledge, queried on demand.
+
+When in doubt: identity → here. What I'm shipping → project CLAUDE.md. What I already did → vault via `/wrap-up`. Deep topic knowledge → a brain.

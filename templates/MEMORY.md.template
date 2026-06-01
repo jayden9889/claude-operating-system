@@ -1,0 +1,24 @@
+# {{Workspace Name}} - Memory
+
+This is the auto-memory index. It lives in your Claude project memory dir (`~/.claude/projects/<your-workspace>/memory/MEMORY.md`) and loads into context every session. Keep it to one line per memory - the actual memory content lives in the files it points to, never here.
+
+<!-- RESUME:START - overwritten by /wrap-up; where the last session left off -->
+## ▶ Resume
+- **Did:** {{nothing yet - run /wrap-up at the end of your first real session}}
+- **Left off:** {{-}}
+- **Open / blockers:** {{-}}
+- **Next:** {{-}}
+- Full note: {{memory/vault/sessions/<date>-<slug>.md}}
+<!-- RESUME:END -->
+
+## Projects
+{{- [Project Name](../../<path>/CLAUDE.md) - one-line hook}}
+
+## User
+{{- who you are, key preferences - pointers to memory files}}
+
+## Feedback
+{{- corrections and confirmed ways of working - pointers to memory files}}
+
+## Reference
+{{- pointers to external resources, dashboards, docs}}

@@ -1,0 +1,15 @@
+---
+updated: {{YYYY-MM-DD}}
+---
+
+# Resume handoff
+
+This file is the cross-surface handoff. `/wrap-up` overwrites it each session with where you left off, so the next session (IDE Claude or Hermes on your phone) picks up instantly. It is the copy Hermes reads (Hermes shares the vault, not the IDE auto-memory pool).
+
+- **Did:** {{the substance of the last session}}
+- **Left off:** {{the exact point we stopped at}}
+- **Open / blockers:** {{what's unresolved or what fought us}}
+- **Next:** {{the first thing to do next session}}
+- Full note: {{memory/vault/sessions/<date>-<slug>.md}}
+
+> On first install this is just an example. After your first `/wrap-up` it becomes the live handoff (saved as `_RESUME.md`).

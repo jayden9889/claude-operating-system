@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────
+# Secrets - never commit. The onboarding flow writes real keys into
+# .env on the adopter's machine; only .env.example (placeholders) is tracked.
+# ─────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+.keys/
+credentials.json
+token.json
+auth.json
+.mcp.json
+
+# Personal memory content - the SCAFFOLD ships, the CONTENT never does.
+# Adopters' real notes stay on their machine. Folder structure is kept via .gitkeep.
+memory/vault/sessions/*
+memory/vault/decisions/*
+memory/vault/lessons/*
+memory/vault/outcomes/*
+memory/vault/themes/*
+memory/vault/knowledge/*
+!memory/vault/**/.gitkeep
+!memory/vault/_RESUME.md.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+.tmp/

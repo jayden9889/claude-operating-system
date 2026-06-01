@@ -1,0 +1,40 @@
+# {{Project Name}} - CLAUDE.md
+
+L2 project file. Auto-loaded when Claude works in this directory. Identity lives in `~/.claude/CLAUDE.md`.
+
+**Last updated:** {{YYYY-MM-DD}} · **Owner:** {{you}} · **Stage:** {{idea | sandbox | shipped | paused | sunset}}
+
+## A · What this folder is
+{{One paragraph. What lives here, who works in it, what state it's in.}}
+
+## B · The goal
+- Why it exists: {{the problem this kills}}
+- Done looks like: {{the success state, in plain English}}
+
+## C · Stack
+{{Languages, frameworks, APIs, deployment targets. "TBD" is fine early.}}
+
+## D · Decisions (already made - do not re-litigate)
+{{Dated entries. Empty at kickoff; grows via memory/decisions.md.}}
+
+## E · Memory map
+| File | What lives there |
+|---|---|
+| `memory/project-brief.md` | Frozen kickoff brief |
+| `memory/decisions.md` | Dated decision log |
+| `memory/current-strategy.md` | Live evolving focus |
+| `memory/next-actions.md` | Task queue |
+| `memory/session-summaries.md` | Last 10 /wrap-up outputs |
+| `memory/bugs-and-risks.md` | Open issues + risks |
+
+## F · References
+- Repo: {{url}}
+- Production: {{url}}
+- Related brains (NotebookLM): {{any L3b brains this project queries}}
+- Wrap-up vault tag: notes in `memory/vault/sessions/` tagged `#project/{{slug}}`
+
+## G · Project-specific overrides (optional)
+{{Only if this project breaks a global default. Otherwise delete this section. Voice/identity belong in ~/.claude/CLAUDE.md, not here.}}
+
+---
+**Constraints:** 200-line ceiling on this file (past that Claude skims - push detail into the memory/ files). One CLAUDE.md per project. Always keep the date current.
