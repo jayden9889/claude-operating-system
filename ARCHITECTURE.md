@@ -120,3 +120,23 @@ You end with the same operating system the author has, seeded entirely with *you
 - **One CLAUDE.md per project, 200-line ceiling.** Past ~200 lines Claude skims. Detail spills into the `memory/` files.
 - **The ritual is mandatory.** Memory that isn't written is memory that doesn't exist. `/wrap-up` is non-optional.
 - **Your machine, your keys, your data.** Nothing about this OS requires a third party to hold your information.
+
+---
+
+## 7. Robustness - what survives moving your workspace
+
+This matters when you install the OS into a workspace that already has work in it, then later rename or move that folder. Most of the system is move-proof by design; exactly one piece is fragile, and it's handled.
+
+| Layer | If you rename/move the workspace | Why |
+|---|---|---|
+| L1 `~/.claude/CLAUDE.md` | **Survives** | Global, path-independent. Loads in every session regardless of where your work lives. |
+| L2 project `CLAUDE.md` | **Survives** | Lives *inside* the project folder. Claude Code loads it by proximity to the current directory, not by an absolute path. It moves with the folder. |
+| L3a vault `memory/vault/` | **Survives** | Lives *inside* the workspace, referenced by relative paths. Moves with the folder. The `_RESUME.md` handoff is here, so it survives too. |
+| Auto-memory pool `MEMORY.md` | **Breaks (then recovered)** | Claude Code keys this to a **slug of the workspace's absolute path** (`~/.claude/projects/<slug>/`). Rename the folder and the slug changes, so the pool de-links. This is Claude Code's design, not ours. |
+
+**How the one fragile layer is handled:**
+- **Resolve, never guess.** Every skill that touches the pool calls `scripts/memory-paths.sh`, which computes the slug the exact way Claude Code does (every non-alphanumeric character in the absolute path becomes a hyphen, per Unicode code point) and verifies the directory exists. No skill ever hand-types a slug, because a wrong guess loses memory silently.
+- **A move-proof duplicate.** `/wrap-up` writes the RESUME handoff to *both* the path-keyed pool and the in-workspace `memory/vault/_RESUME.md`. The vault copy moves with your folder, so the "where did we leave off" handoff is never lost to a rename.
+- **Automatic migration.** If you moved the folder, `/onboard` detects the old pool under its old slug and migrates it to the new one (copy, not move, so the old stays as a backup). Run `/onboard` after any rename and your cross-cutting memory follows.
+
+The practical rule: your identity, your project files, and your session history all move with your work. The only thing a rename can briefly de-link is the cross-cutting pool index, and `/onboard` re-links it on demand.

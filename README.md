@@ -42,11 +42,15 @@ Both surfaces read the same memory. That shared memory is what makes Claude feel
 
 ## Quick start
 
-1. **Drop this repo into your workspace** (or open it directly in Claude Code / the IDE extension).
-2. **Say `/onboard`.** Claude scans what you already have, asks only for what's missing, and builds the rest. See [ONBOARDING.md](ONBOARDING.md) for exactly what it does.
+1. **Clone this repo as its own folder** next to (or inside) the workspace that holds your real work. Keep it as its own directory - don't copy its files into your project root, so it never overwrites your existing `CLAUDE.md`, `.gitignore`, or `README`.
+2. **Open it in Claude Code and say `/onboard`.** Claude reads your actual workspace, figures out the safe way to install around your existing work, asks only for what's missing, and builds the rest - identity, project structure, memory, keys, and your Hermes phone agent. It adds structure beside your files and never moves or overwrites anything without showing you first. See [ONBOARDING.md](ONBOARDING.md).
 3. **At the end of every working session, say `/wrap-up`.** This is the habit that makes the whole thing work - it saves the session into memory so the next one continues seamlessly. Skip it and the memory stays empty.
 
 That's it. No manual config files, no copy-pasting keys into the wrong place.
+
+### Installing into a workspace you already work in
+
+`/onboard` is built for exactly this. It is **non-destructive**: it reads what you already have, adds the memory structure alongside your files, and asks before it ever moves or merges anything. It also handles Claude Code's one fragile spot - the auto-memory pool is keyed to your workspace's path, so if you later rename or move the folder, run `/onboard` again and it migrates your memory to the new location. Nothing is lost. Full detail in [ARCHITECTURE.md](ARCHITECTURE.md) §7.
 
 ---
 

@@ -22,7 +22,11 @@ Do NOT fire for: trivial one-question chats or quick lookups.
 
 This is what makes the next session "just know". Write the SAME short handoff to **both** places so both surfaces pick it up:
 
-**(a) The auto-memory `MEMORY.md`** in the Claude project memory dir (`~/.claude/projects/<workspace-slug>/memory/MEMORY.md`) - auto-loaded into context every session. Overwrite the block between the markers (create them at the top, just under the heading, if absent):
+**(a) The auto-memory `MEMORY.md`** in the Claude project memory dir. **Resolve that path, never hand-guess the slug** (a wrong guess writes the handoff where the next session won't read it):
+```bash
+bash "<os-repo>/scripts/memory-paths.sh"   # prints MEMORY_MD for this workspace
+```
+It is auto-loaded into context every session. Overwrite the block between the markers (create them at the top, just under the heading, if absent):
 
 ```
 <!-- RESUME:START - overwritten by /wrap-up; where the last session left off -->
@@ -35,7 +39,7 @@ This is what makes the next session "just know". Write the SAME short handoff to
 <!-- RESUME:END -->
 ```
 
-**(b) The vault `memory/vault/_RESUME.md`** - identical content plus a one-line frontmatter `updated: <date>`. This is the copy Hermes reads (Hermes shares the vault, not the IDE auto-memory pool).
+**(b) The vault `memory/vault/_RESUME.md`** - identical content plus a one-line frontmatter `updated: <date>`. This is the copy Hermes reads (Hermes shares the vault, not the IDE auto-memory pool). It also lives *inside* the workspace, so it survives a folder rename/move even if the path-keyed pool (a) de-links - it's the move-proof handoff. Always write both.
 
 Keep it tight, 5-8 lines. Overwrite each time; never append - this is "current state", not history. Full history lives in the session note.
 

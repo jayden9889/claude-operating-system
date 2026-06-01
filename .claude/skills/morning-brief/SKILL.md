@@ -29,7 +29,7 @@ Chain the two so the delivery phase receives the dreaming output as context. Kee
 
 The brief is only as good as what it reads. Pull from the operating system's own memory first:
 
-1. **RESUME handoff** - `memory/vault/_RESUME.md` and the RESUME block in the auto-memory `MEMORY.md`. This is where the last session left off. Highest-signal source.
+1. **RESUME handoff** - `memory/vault/_RESUME.md` (in-workspace, move-proof) and the RESUME block in the auto-memory `MEMORY.md` (resolve its path with `scripts/memory-paths.sh`, never hand-guess the slug). This is where the last session left off. Highest-signal source.
 2. **Next actions** - each active project's `memory/next-actions.md`.
 3. **Git log** - `git log --oneline --since="5 days ago" -30` in the workspace. The real activity log.
 4. **The vault** - latest notes in `memory/vault/sessions/` and `memory/vault/decisions/` for recent context.

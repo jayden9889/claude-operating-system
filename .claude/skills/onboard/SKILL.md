@@ -1,123 +1,126 @@
 ---
 name: onboard
-description: First-run setup for the Claude Operating System. Scans the user's existing workspace, finds what's missing, interviews them for the gaps, and builds their full three-tier memory system (L1 global identity, L2 per-project, L3a vault) plus optionally their Hermes phone agent. Non-destructive - adds structure alongside existing files, never moves their work without asking. Resumable. Use when the user says "/onboard", "set me up", "get me started", "build my operating system", or when this repo is freshly dropped into a workspace and no ~/.claude/CLAUDE.md exists yet.
+description: First-run setup for the Claude Operating System. Scans the user's existing workspace, figures out the safest way to install around their real work, and builds their full three-tier memory system (L1 global identity, L2 per-project, L3a vault), sets up their Hermes phone agent, and tidies their projects - all without moving files blindly or losing any memory. Non-destructive and resumable. Use when the user says "/onboard", "set me up", "get me started", "build my operating system", "install this OS", or when this repo is freshly dropped into a workspace.
 allowed-tools: Bash, Read, Write, Edit
 ---
 
-# onboard - build the user's operating system
+# onboard - build the user's operating system, safely, around their real work
 
-You are setting up a new person on the Claude Operating System. By the end they have what a power user has: persistent memory across sessions, a clean project structure, their keys safely stored, and optionally a phone agent - all seeded with THEIR identity and THEIR work.
+You are installing a stranger's operating system into a workspace that **already has their work in it**. By the end they have persistent memory across sessions, a clean project structure, their keys safely stored, and a phone agent (Hermes) - all seeded with THEIR identity and THEIR work. You figure out the right approach dynamically by reading their actual workspace first. You break nothing and you lose no memory.
 
-Read [ARCHITECTURE.md](../../ARCHITECTURE.md) once if you haven't, so you can explain *why* as you go. This is a conversation, not a form. Ask only for what you can't work out by looking. Move in steps; confirm before anything destructive.
+Read [ARCHITECTURE.md](../../ARCHITECTURE.md) once so you can explain *why* as you go. This is a conversation, not a form. Move in steps, confirm before anything that touches their files.
 
-## Golden rules (hold these the whole way through)
+## The prime directives (hold these the entire way)
 
-- **Non-destructive.** ADD structure beside the user's files. Never move, rename, or delete their work without asking and explaining why first.
-- **Never echo a secret.** Keys and tokens go straight to disk at permission 600. Never print one back to chat, never commit one.
-- **Resumable.** Re-running `/onboard` must not clobber work already done. Check what exists before writing.
-- **One thing at a time.** Don't dump ten questions. Walk the steps.
-- **This repo stays clean.** Everything you generate is the USER's data, written to THEIR machine (`~/.claude/`, their workspace, `~/.hermes/`). Never write personal data back into this OS repo.
+1. **Lose no memory, ever.** The auto-memory pool is keyed to the workspace's absolute path (see Step 1). Resolve that path with the resolver, never by hand. If anything could de-link memory (a rename, a move), detect it and migrate rather than abandon.
+2. **Never overwrite their files.** They may already have a `CLAUDE.md`, `.gitignore`, `README`, `.env`, or a half-built memory setup. Read what exists. Add beside it or merge with consent. NEVER clobber.
+3. **This OS repo stays its own folder.** Do not copy this repo's root files (`CLAUDE.md`, `README.md`, `.gitignore`, `.env.example`) into their workspace root - that would overwrite theirs. The repo sits as its own directory; you write the user's NEW structure into THEIR workspace (the parent dir, or a dir they name), using the templates in `templates/`.
+4. **Move nothing blindly.** "Optimise the workspace" means add structure and *propose* tidying. Show the plan, get a yes, then act. Never reorganise their files under them.
+5. **Never echo or commit a secret.** Keys go to disk at permission 600. Never print one back, never commit one.
+6. **Resumable.** Re-running `/onboard` re-scans and only fills gaps. Never redo done work.
 
 ---
 
 ## Step 0 - Orient
 
 ```bash
-uname -s          # Darwin = macOS (Hermes/launchd steps work). Else flag Hermes as unavailable.
-pwd               # where are we
+uname -s          # Darwin = macOS (Hermes works). Else note Hermes is unavailable here.
+pwd               # where this repo was dropped
 ```
+Read this repo's `README.md` and `ARCHITECTURE.md`. Tell the user in two lines what you'll do and that they can stop anytime.
 
-Read this repo's `README.md` and `ARCHITECTURE.md` so your explanations are grounded. Tell the user in two lines what you're about to do and that they can stop anytime.
+**Establish the two locations clearly, out loud:**
+- **OS repo dir** = where this repo lives (here).
+- **Target workspace** = the folder holding their actual work that the OS should manage. Often the parent of this repo, or a sibling they point you at. Confirm it in one line before writing anything. Everything you build for the user goes under the target workspace and `~/.claude/`, never back into the OS repo.
 
-## Step 1 - Scan what already exists
+## Step 1 - Resolve memory paths the safe way (never hand-guess)
 
-Build a picture before asking anything. Check each and note present/absent:
+The single fragile coupling in Claude Code: a workspace's auto-memory pool lives at `~/.claude/projects/<slug>/memory/`, where `<slug>` is the absolute path with every non-alphanumeric character turned into a hyphen. Guess it wrong and `MEMORY.md` silently never loads. So resolve it, then verify:
 
 ```bash
-ls -la ~/.claude/CLAUDE.md 2>/dev/null            # L1 identity present?
-ls ~/.claude/projects/ 2>/dev/null                # existing Claude project memory dirs
-ls -la memory/vault 2>/dev/null                   # vault scaffold present?
+bash "<os-repo>/scripts/memory-paths.sh" "<target-workspace-abs-path>"
 ```
+This prints `SLUG`, `POOL_DIR`, `MEMORY_MD`, and `FOUND`.
+- `FOUND=1` - Claude Code already tracks this path. `POOL_DIR` is correct. Good.
+- `FOUND=0` - either a brand-new workspace (fine, you'll create it) OR the workspace was renamed/moved and an older pool exists under a different slug. The script lists the other existing project dirs. If one clearly belongs to this same work (the user renamed the folder), go to the **Move recovery** block below before doing anything else.
 
-Then scan the workspace the user dropped this into (their actual work, likely the parent or a sibling dir they name): list top-level folders, spot things that look like projects (a folder with code, a git repo, a clear purpose). Don't read their file contents deeply - just map the shape.
+### Move recovery (run only when memory may have de-linked)
+If a previous pool exists under an old slug and the current one is empty:
+1. Show the user both: "Your memory was under `<old-slug>`; this workspace is now `<new-slug>`. I'll migrate it so nothing's lost."
+2. Migrate (copy, never move-and-pray), only after they confirm:
+   ```bash
+   mkdir -p "$NEW_POOL_DIR"
+   cp -n "$OLD_POOL_DIR"/* "$NEW_POOL_DIR"/ 2>/dev/null || true
+   cp -rn "$OLD_POOL_DIR"/*/ "$NEW_POOL_DIR"/ 2>/dev/null || true
+   ```
+3. Confirm `MEMORY.md` now exists at the new path. Leave the old dir untouched as a backup. Tell them the in-workspace `memory/vault/_RESUME.md` already survived the move regardless (that copy is path-independent - see ARCHITECTURE §Robustness).
 
-Summarise back: "Here's what you already have, here's what's missing." Keep it to a short list.
+## Step 2 - Scan what already exists (decide the approach from real data)
 
-## Step 2 - L1: who they are (the identity file)
+Build a picture before asking anything:
+```bash
+ls -la ~/.claude/CLAUDE.md 2>/dev/null              # L1 identity present?
+ls -la "$MEMORY_MD" 2>/dev/null                     # pool already set up?
+ls -la "<target>/memory/vault" 2>/dev/null          # vault present?
+ls -la "<target>"/.gitignore "<target>"/CLAUDE.md "<target>"/.env 2>/dev/null  # files we must NOT clobber
+```
+Then map the target workspace: top-level folders, which look like real projects (code, a git repo, a clear purpose), whether any already has a `CLAUDE.md`. Don't deep-read their content - just map the shape.
 
-If `~/.claude/CLAUDE.md` already exists, read it, show it, ask if they want to keep/extend it. Don't overwrite without consent.
+Summarise back: "Here's what you have, here's what's missing, here's what I'll add and where." Adapt the plan to what you found. A messy workspace gets more tidying proposals; a clean one gets less.
 
-If absent, interview - tight, 4-6 questions, not a wall:
-1. Name, and one line on what you do.
-2. The business / work you're in (who else is involved if it matters).
-3. What you're working towards (goals).
-4. How you want me to talk to you (tone, British/American English, any pet hates).
-5. Your hard rules - the things I must always or never do.
-6. The tools and services you use day to day.
+## Step 3 - L1: who they are (global identity)
 
-Fill `templates/global-CLAUDE.md.template` with their answers and write it to `~/.claude/CLAUDE.md`. Read it back for approval before saving. This is the highest-leverage file in the system - get it right.
+If `~/.claude/CLAUDE.md` exists, read it, show it, ask to keep/extend. Never overwrite without consent.
+If absent, interview tight (4-6 questions): name + one line on what they do; their work/business (who else is involved); goals; how they want Claude to talk to them (tone, British/American English, pet hates); hard rules; the tools they use.
+Fill `templates/global-CLAUDE.md.template`, read it back, then write to `~/.claude/CLAUDE.md`. Highest-leverage file in the system - get it right.
 
-## Step 3 - L2: their projects
+## Step 4 - L2: their projects (add beside, tidy with consent)
 
-For each real project you found in Step 1, offer to scaffold the clean L2 structure (this is exactly what the `/new-project` skill does - reuse its template and loop). For each one they say yes to:
-
+For each real project found in Step 2, offer the clean L2 structure (this is what `/new-project` does - reuse it):
 ```bash
 mkdir -p "<project-path>/memory"
 ```
-Write `<project-path>/CLAUDE.md` from `templates/project-CLAUDE.md.template`, filling what you can infer + a couple of quick questions per project (what is it, what stage, the goal). Create the six `memory/` stub files (`project-brief`, `decisions`, `current-strategy`, `next-actions`, `session-summaries`, `bugs-and-risks`).
+Write `<project-path>/CLAUDE.md` from `templates/project-CLAUDE.md.template` (infer what you can + 2-3 quick questions per project). Create the six `memory/` stubs (`project-brief`, `decisions`, `current-strategy`, `next-actions`, `session-summaries`, `bugs-and-risks`).
 
-**Leave their existing files exactly where they are.** You're adding a `CLAUDE.md` and a `memory/` folder beside their work, nothing else.
+**If a project already has a `CLAUDE.md`:** read it, and *merge* the missing sections in rather than replacing. Show the diff, get consent.
 
-## Step 4 - The always-loaded memory index + RESUME (segregated but readable)
+**Optimising / organising (only with a shown plan and a yes):** if their workspace is messy (loose files, no structure), you may *propose* a tidy - e.g. "these three scripts could live under `project-x/`". Present it, never execute a move without explicit approval, and prefer adding structure over relocating their files. Leave existing files where they are by default.
 
-Find their Claude project memory dir. Claude Code derives it from the workspace path (the absolute path with `/` and other separators replaced by `-`), under `~/.claude/projects/<that-slug>/memory/`. Create that `memory/` dir if absent and write `MEMORY.md` from `templates/MEMORY.md.template`, including the RESUME block.
+## Step 5 - The always-loaded index + RESUME (segregated, move-proof copy in the vault)
 
-Set the pool up on the **segregation rule** (see ARCHITECTURE.md §2) so it stays readable as it grows, and so it matches anyone else running the same OS:
-- **One fact per file**, not big catch-all files.
-- **Subfolders by project/topic** inside the pool (`<project>/`, `references/`, `user/`, `feedback/`...). Create a subfolder per project scaffolded in Step 3.
-- **`MEMORY.md` is the only always-loaded file** - one line per memory (title + hook + relative link into a subfolder). Add one index line per project under a `## Projects` heading.
+Create `POOL_DIR` if absent and write `MEMORY.md` from `templates/MEMORY.md.template`, including the RESUME block. Set the pool up on the **segregation rule** (ARCHITECTURE §2) so it stays readable and matches anyone else running this OS:
+- One fact per file. Subfolders by project/topic (`<project>/`, `references/`, `user/`, `feedback/`). One always-loaded `MEMORY.md` index, one line per memory.
+Add one index line per project scaffolded in Step 4.
 
-This file auto-loads every session - it's how the next session "just knows" where things are.
+## Step 6 - Tools and keys (.env in THEIR workspace, never echoed)
 
-## Step 5 - Tools and keys (.env)
+From the tools they named, work out which need keys. For each: tell them where to get it, have them paste it, write it straight into `<target>/.env`. **Confirm `.env` is gitignored first; if they already have a `.env`, append to it, do not overwrite.** Then `chmod 600` and confirm `-rw-------`. Start from `.env.example` as the shape. Never print a key back.
 
-From the tools they named in Step 2.6, work out which need API keys. For each:
-- Tell them where to get it (e.g. Anthropic key at console.anthropic.com).
-- Have them paste it, and write it straight into `.env` in their workspace. **Do not echo it back.**
-- `chmod 600 .env` and confirm with `ls -la .env` (must be `-rw-------`).
+## Step 7 - L3a: stand up the vault (the move-proof memory)
 
-Start from `.env.example` as the shape. Add lines for whatever tools they actually use. Confirm `.env` is gitignored before writing a single key.
+If `<target>/memory/vault/` isn't initialised, create it: folders `sessions/ decisions/ lessons/ outcomes/ themes/ knowledge/`, seed `_RESUME.md` from `_RESUME.md.example`. This lives *inside* the workspace, so it survives renames and is the copy Hermes reads. For L3b brains (NotebookLM), mention as an optional later step - don't build them now.
 
-## Step 6 - L3a: stand up the vault
+## Step 8 - Hermes: set up their phone agent (default yes on macOS)
 
-If `memory/vault/` isn't initialised in their workspace, create it: the folders `sessions/ decisions/ lessons/ outcomes/ themes/ knowledge/`, and seed `_RESUME.md` from `_RESUME.md.example`. This is where `/wrap-up` writes. If they use Obsidian, tell them they can open this folder as a vault for the graph view. For L3b brains (NotebookLM), point them at it as an optional later step - don't build brains during onboarding.
+Onboarding includes Hermes - the user should leave with a working phone agent, not a "maybe later". If `uname -s` is Darwin, say "Next I'll set up Hermes so you can message this same system from your phone" and hand off to the `hermes-setup` skill, passing the target workspace path so both surfaces share one memory. Only skip if they decline or they're not on macOS (then note they can run `/hermes-setup` later). Mirror this OS's `wrap-up` (and `morning-brief`, if they want it) into `~/.hermes/skills/` so the phone can wrap and brief too.
 
-## Step 7 - (Optional, macOS) Hermes, the phone agent
+## Step 9 - Teach the one habit, then finish
 
-Ask if they want to message their AI from their phone. If yes and they're on macOS, hand off to the `hermes-setup` skill. If no or not on macOS, skip cleanly and note they can run `/hermes-setup` later.
+Tell them plainly: **"From now on, end every working session with `/wrap-up`. That's the habit that saves the session into memory so the next one continues where we stopped. Without it, the memory stays empty."** Offer the morning brief too (`/morning-brief`) as the read-side of the same loop.
 
-## Step 8 - Teach the one habit, then finish
-
-Tell them plainly: **"From now on, end every working session with `/wrap-up`. That's the habit that saves the session into memory so the next one continues where we stopped. Without it, the memory stays empty."** This is the single most important thing for them to remember.
-
-Offer to commit the new structure (ask first - never auto-commit). Then report, in a few lines: what got built (L1 path, projects scaffolded, vault, keys stored count - not the keys), what was skipped and why, and the `/wrap-up` habit.
+Offer to commit the new structure (ask first, never auto-commit; commit + push together once approved). Then report in a few lines: what got built (L1 path, projects scaffolded, vault, keys stored count - not the keys, Hermes yes/no), what was skipped and why, any memory migrated, and the `/wrap-up` habit.
 
 ---
 
 ## Resume behaviour
+Re-running `/onboard`: re-run Step 1 (paths) and Step 2 (scan), show what's done, offer only the gaps. Never overwrite an existing `~/.claude/CLAUDE.md`, project `CLAUDE.md`, or `.env` without explicit consent.
 
-If `/onboard` is run again: re-scan (Step 1), show what's already done, and only offer the missing pieces. Never overwrite an existing `~/.claude/CLAUDE.md`, project `CLAUDE.md`, or `.env` without explicit consent.
-
-## If the user already has a memory system (reconcile, don't rebuild)
-
-Common case: the user already runs an operating system like this (their own L1, projects, and memory pool), and is adopting this repo to align with someone else's setup. Do NOT tear theirs down. Instead:
-- **Keep their content. Align the structure.** Read their existing `~/.claude/CLAUDE.md`, project `CLAUDE.md` files, and memory pool. Leave the *content* alone.
-- **Apply the segregation rule (Step 4) to whatever's already there** only where it's missing - e.g. if their pool is one big file, offer to split it into one-fact-per-file subfolders with a single `MEMORY.md` index. Show the plan and get consent before moving anything.
-- **Match conventions, not data.** The goal is that their system is *shaped* like the sender's (same tiers, same segregation, same `/wrap-up` ritual) so the two are mutually readable - never that their identity or projects mirror the sender's. Their OS stays entirely theirs.
+## If the user already runs a memory system (reconcile, don't rebuild)
+Common case: they're adopting this to align with someone else's setup. Keep their content, align the structure. Read their existing `~/.claude/CLAUDE.md`, project files, and pool; leave the *content* alone; apply the segregation rule only where missing, with consent. Match conventions, never data - their OS stays entirely theirs.
 
 ## Constraints
-
-- Non-destructive, always. Ask before moving anything.
+- Resolve memory paths with `scripts/memory-paths.sh`. Never hand-guess a slug.
+- Non-destructive, always. Read-before-write on every existing file. Ask before any move.
 - Never echo or commit a secret.
-- No em dashes. Match the user's chosen English (British/American) once set.
-- Keep this OS repo free of the user's personal data.
+- No em dashes. Match the user's chosen English once set.
+- Keep this OS repo free of the user's personal data - everything you generate is theirs, written to their machine.

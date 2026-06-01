@@ -26,8 +26,8 @@ Claude asks what tools and services you use (Claude, plus anything else - databa
 ### 6. Stand up the long-term memory
 The Obsidian-compatible vault (`memory/vault/`) is initialised so `/wrap-up` has somewhere to write. If you want deep research brains (NotebookLM), it points you at how to add them.
 
-### 7. (Optional) Stand up Hermes, your phone agent
-If you're on a Mac and want it, Claude walks you through building Hermes so you can message your own AI from your phone, reading the same memory as your IDE Claude. This hands off to the `hermes-setup` skill.
+### 7. Stand up Hermes, your phone agent
+Onboarding sets up Hermes for you, not "maybe later" - by the end you can message your own AI from your phone and it reads the same memory as your IDE Claude. Claude walks you through building it (hands off to the `hermes-setup` skill) and wires it to the same workspace. macOS only; if you're not on a Mac or you decline, it's skipped cleanly and you can run `/hermes-setup` anytime.
 
 ---
 
@@ -46,6 +46,8 @@ From then on, the only habit you need is: **say `/wrap-up` at the end of every w
 
 ## Non-negotiables (so you can trust it)
 
-- **It never moves your work without asking.** Optimisation means adding structure beside your files, not reorganising them under you.
+- **It never moves your work without asking.** Optimisation means adding structure beside your files, not reorganising them under you. Any tidy-up is shown as a plan you approve first.
+- **It never overwrites your files.** If you already have a `CLAUDE.md`, `.gitignore`, `.env`, or a partial memory setup, it reads and merges with consent - it never clobbers.
+- **It never loses memory.** Memory paths are resolved exactly, not guessed. If you've renamed or moved your workspace, it detects the old memory and migrates it across, and your in-workspace handoff survives the move regardless.
 - **It never leaks a secret.** Keys are written to disk at permission 600, never echoed, never committed.
 - **It's resumable.** Stop halfway and run `/onboard` again later - it picks up from what's missing.
