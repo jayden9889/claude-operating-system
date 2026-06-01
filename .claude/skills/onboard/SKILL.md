@@ -70,9 +70,18 @@ Summarise back: "Here's what you have, here's what's missing, here's what I'll a
 
 ## Step 3 - L1: who they are (global identity)
 
-If `~/.claude/CLAUDE.md` exists, read it, show it, ask to keep/extend. Never overwrite without consent.
-If absent, interview tight (4-6 questions): name + one line on what they do; their work/business (who else is involved); goals; how they want Claude to talk to them (tone, British/American English, pet hates); hard rules; the tools they use.
-Fill `templates/global-CLAUDE.md.template`, read it back, then write to `~/.claude/CLAUDE.md`. Highest-leverage file in the system - get it right.
+The goal of this step: end with a correct global `~/.claude/CLAUDE.md`, built as much as possible from what they ALREADY wrote, asking only for what's genuinely missing. Three cases:
+
+**Case A - global already exists.** If `~/.claude/CLAUDE.md` exists, read it, show it, ask to keep/extend. Never overwrite without consent. Jump to the gap-fill below.
+
+**Case B - identity is in the wrong place (very common).** Many people start with a single local `CLAUDE.md` in their project that is really doing double duty - it holds *identity* content (who they are, their tone, their hard rules, their business) mixed in with *project* content. That identity belongs in global L1, not a project file. When you find a local `CLAUDE.md` (from the Step 2 scan) and there is no global one, do this:
+1. **Read it and classify each part.** Identity/universal (who they are, how they want Claude to talk to them, always/never rules, their business, their goals, their tools) → belongs in **L1 global**. Project-specific (what this folder is, its stack, its decisions, its tasks) → stays in **L2 project**.
+2. **Show the split before moving anything.** "Your `CLAUDE.md` is mixing who-you-are with this-project. I'll lift the identity parts up to your global file so every project gets them, and keep the project parts here. Here's exactly what goes where." Get a yes.
+3. **Promote.** Fill `templates/global-CLAUDE.md.template` with the extracted identity content and write it to `~/.claude/CLAUDE.md`. Rewrite the local file as a clean L2 from `templates/project-CLAUDE.md.template`, keeping only the project content. **Back up the original first** (`cp CLAUDE.md CLAUDE.md.pre-onboard.bak`) so nothing is lost.
+
+**Case C - nothing exists.** No global, no usable local. Interview from scratch.
+
+**Then, in every case, fill only the gaps.** Whatever you extracted in B (or found in A) you do NOT re-ask. Compare what you have against what L1 needs - name, what they do, business, goals, tone, English (British/American), hard rules, tools - and ask only the missing ones, tight, 4-6 questions max. Read the finished `~/.claude/CLAUDE.md` back for approval. This is the highest-leverage file in the system - get it right.
 
 ## Step 4 - L2: their projects (add beside, tidy with consent)
 
