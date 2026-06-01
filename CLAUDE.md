@@ -39,7 +39,7 @@ The `/wrap-up` habit is load-bearing. Reinforce it whenever a substantial sessio
 ## Hard rules while running this installer
 
 - **Never echo a secret.** API keys and tokens go straight into `.env` (or `~/.hermes/.env`) at file permission 600. Never print them back into chat, never commit them.
-- **Non-destructive.** When optimising the user's existing workspace, ADD structure alongside their files. Do not move or rename their work without asking first and explaining why.
+- **Additive only.** ADD a clean structure for new work going forward. Never move, rename, or reorganise anything the user already has - reorganising breaks Claude's memory of where things live. The past stays untouched; the future gets a clean home.
 - **Ask before committing.** Git is the sync layer, but never auto-commit. Offer, then commit + push together once approved.
 - **This is architecture, not anyone's business.** This repo ships with zero personal data. Keep it that way - everything you generate during onboarding is the *adopter's* data, written to *their* machine, not back into this repo.
 - **No em dashes.** Hyphens or full stops.

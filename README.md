@@ -50,7 +50,7 @@ That's it. No manual config files, no copy-pasting keys into the wrong place.
 
 ### Installing into a workspace you already work in
 
-`/onboard` is built for exactly this. It is **non-destructive**: it reads what you already have, adds the memory structure alongside your files, and asks before it ever moves or merges anything. It also handles Claude Code's one fragile spot - the auto-memory pool is keyed to your workspace's path, so if you later rename or move the folder, run `/onboard` again and it migrates your memory to the new location. Nothing is lost. Full detail in [ARCHITECTURE.md](ARCHITECTURE.md) §7.
+`/onboard` is built for exactly this, and it follows one rule: **it never moves, renames, or reorganises anything you already have.** It only adds a clean cabinet for new work going forward - your existing projects and loose files stay exactly where they are, named exactly what they're named, so nothing Claude has already built gets broken. It connects the full system around them (memory, keys, and your Hermes phone agent). It also handles Claude Code's one fragile spot: the auto-memory pool is keyed to your workspace's path, so if you ever rename or move the folder, run `/onboard` again and it migrates your memory across. Nothing is lost. Full detail in [ARCHITECTURE.md](ARCHITECTURE.md) §7.
 
 ---
 

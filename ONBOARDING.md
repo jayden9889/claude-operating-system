@@ -17,8 +17,8 @@ It compares what a complete operating system needs against what you already have
 ### 3. Learn who you are (builds L1)
 A few tight questions: your name, what you do, the business or work you're in, how you want Claude to talk to you, any hard rules. This becomes your global identity file at `~/.claude/CLAUDE.md` - loaded into every session, every project, forever.
 
-### 4. Map your projects (builds L2)
-For each real project Claude found, it offers to scaffold the clean structure: a 6-section `CLAUDE.md` plus a `memory/` folder. Your existing files are left where they are - this is added *alongside* them. It also stands up the always-loaded memory index (`MEMORY.md`) with the RESUME handoff block.
+### 4. Set up a clean home for new work (builds L2)
+This is the clean cabinet, and it's for work going forward. New projects you start get the clean structure (a `CLAUDE.md` + a `memory/` folder). Your existing projects are **never moved, renamed, or reorganised** - Claude just registers them in the index so it knows they're there, and can optionally drop a `CLAUDE.md` *beside* one if you want, which moves nothing. It also stands up the always-loaded memory index (`MEMORY.md`) with the RESUME handoff block.
 
 ### 5. Collect your tools and keys
 Claude asks what tools and services you use (Claude, plus anything else - databases, payment, calendars, whatever your work needs) and which ones need API keys. Keys go straight into `.env` at locked permissions. **Claude never prints a key back to you and never commits one.**
@@ -46,7 +46,7 @@ From then on, the only habit you need is: **say `/wrap-up` at the end of every w
 
 ## Non-negotiables (so you can trust it)
 
-- **It never moves your work without asking.** Optimisation means adding structure beside your files, not reorganising them under you. Any tidy-up is shown as a plan you approve first.
+- **It never moves or renames your existing work. Full stop.** It only adds a clean structure for new work going forward. It does not "tidy" or reorganise your old files, because moving things would break Claude's memory of where they are. The past stays exactly where it is; the future gets a clean home.
 - **It never overwrites your files.** If you already have a `CLAUDE.md`, `.gitignore`, `.env`, or a partial memory setup, it reads and merges with consent - it never clobbers.
 - **It never loses memory.** Memory paths are resolved exactly, not guessed. If you've renamed or moved your workspace, it detects the old memory and migrates it across, and your in-workspace handoff survives the move regardless.
 - **It never leaks a secret.** Keys are written to disk at permission 600, never echoed, never committed.
